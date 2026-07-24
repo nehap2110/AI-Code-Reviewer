@@ -1,34 +1,46 @@
-const {reviewCode}  = require('../services/ai.service.js');
+const { reviewCode, ACTIONS } = require("../services/ai.service.js");
 
-const review =  async(req,res)=>{
-    try {
+const VALID_ACTIONS = Object.values(ACTIONS);
 
-        console.log("review api hit");
+const review = async (req, res) => {
+  try {
+    const { code, language, action } = req.body;
 
-        const {code} = req.body;
-
-        if(!code){
-            return res.status(400).json({
-                success:false,
-                message:"code is required"
-            });
-        }
-
-        const result =await reviewCode(code);
-
-        res.json({
-            success:true,
-            review : result
-        });
-        
-    } catch (error) {
-        console.log(error);
-
-        res.status(500).json({
-            success:false,
-            message:"something went wrong"
-        });
+    if (!code || !code.trim()) {
+      return res.status(400).json({
+        success: false,
+        message: "code is required",
+      });
     }
-}
 
-module.exports = {review}
+    const selectedAction = action || ACTIONS.REVIEW;
+
+    if (!VALID_ACTIONS.includes(selectedAction)) {
+      return res.status(400).json({
+        success: false,
+        message: `Invalid action "${selectedAction}". Must be one of: ${VALID_ACTIONS.join(", ")}`,
+      });
+    }
+
+    const result = await reviewCode({
+      code,
+      language: language || "javascript",
+      action: selectedAction,
+    });
+
+    res.json({
+      success: true,
+      review: result,
+      action: selectedAction,
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.status(500).json({
+      success: false,
+      message: "Something went wrong while generating the review.",
+    });
+  }
+};
+
+module.exports = { review };
