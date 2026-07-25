@@ -1,11 +1,13 @@
 import { FaSearch, FaBook, FaBug, FaBolt, FaVial, FaTrash, FaUpload } from "react-icons/fa";
 
-const ACTIONS = [
+
+  export const ACTIONS = [
   { key: "review", label: "Review", icon: FaSearch, color: "bg-green-600 hover:bg-green-700" },
   { key: "explain", label: "Explain", icon: FaBook, color: "bg-blue-600 hover:bg-blue-700" },
   { key: "fixBugs", label: "Fix Bugs", icon: FaBug, color: "bg-red-600 hover:bg-red-700" },
   { key: "optimize", label: "Optimize", icon: FaBolt, color: "bg-yellow-600 hover:bg-yellow-700" },
   { key: "generateTests", label: "Tests", icon: FaVial, color: "bg-purple-600 hover:bg-purple-700" },
+  
 ];
 
 function ActionBar({ onAction, onClear, isLoading, activeAction }) {
