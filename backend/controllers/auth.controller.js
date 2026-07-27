@@ -1,62 +1,87 @@
 const User = require("../models/User");
 const generateToken = require("../utils/generateToken");
+const { AppError, asyncHandler } = require("../utils/errorHandler");
+const { MIN_PASSWORD_LENGTH } = require("../constants");
 
-const register = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
+/**
+ * Register a new user
+ * POST /api/auth/register
+ */
+const register = asyncHandler(async (req, res) => {
+  const { name, email, password } = req.body;
 
-    if (!name || !email || !password) {
-      return res.status(400).json({ success: false, message: "name, email and password are required" });
-    }
-    if (password.length < 6) {
-      return res.status(400).json({ success: false, message: "Password must be at least 6 characters" });
-    }
-
-    const existingUser = await User.findOne({ email: email.toLowerCase() });
-    if (existingUser) {
-      return res.status(409).json({ success: false, message: "An account with this email already exists" });
-    }
-
-    const user = await User.create({ name, email, password });
-
-    res.status(201).json({
-      success: true,
-      token: generateToken(user._id),
-      user: { id: user._id, name: user.name, email: user.email },
+  // Check if user already exists
+  const existingUser = await User.findOne({ email: email.toLowerCase() });
+  if (existingUser) {
+    return res.status(409).json({
+      success: false,
+      message: "An account with this email already exists",
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Registration failed" });
   }
-};
 
-const login = async (req, res) => {
-  try {
-    const { email, password } = req.body;
+  // Create new user
+  const user = await User.create({
+    name: name.trim(),
+    email: email.toLowerCase(),
+    password,
+  });
 
-    if (!email || !password) {
-      return res.status(400).json({ success: false, message: "email and password are required" });
-    }
+  // Return success response with token
+  res.status(201).json({
+    success: true,
+    message: "Registration successful! Please log in.",
+    token: generateToken(user._id),
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    },
+  });
+});
 
-    const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
+/**
+ * Login user
+ * POST /api/auth/login
+ */
+const login = asyncHandler(async (req, res) => {
+  const { email, password } = req.body;
 
-    if (!user || !(await user.matchPassword(password))) {
-      return res.status(401).json({ success: false, message: "Invalid email or password" });
-    }
+  // Find user and select password field
+  const user = await User.findOne({ email: email.toLowerCase() }).select("+password");
 
-    res.json({
-      success: true,
-      token: generateToken(user._id),
-      user: { id: user._id, name: user.name, email: user.email },
+  if (!user || !(await user.matchPassword(password))) {
+    return res.status(401).json({
+      success: false,
+      message: "Invalid email or password",
     });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ success: false, message: "Login failed" });
   }
-};
 
-const getMe = async (req, res) => {
-  res.json({ success: true, user: { id: req.user._id, name: req.user.name, email: req.user.email } });
-};
+  // Return success response with token
+  res.json({
+    success: true,
+    message: "Login successful!",
+    token: generateToken(user._id),
+    user: {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+    },
+  });
+});
+
+/**
+ * Get current authenticated user
+ * GET /api/auth/me
+ */
+const getMe = asyncHandler(async (req, res) => {
+  res.json({
+    success: true,
+    user: {
+      id: req.user._id,
+      name: req.user.name,
+      email: req.user.email,
+    },
+  });
+});
 
 module.exports = { register, login, getMe };
