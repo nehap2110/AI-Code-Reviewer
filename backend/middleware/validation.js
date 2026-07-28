@@ -1,6 +1,9 @@
 const { body, validationResult } = require("express-validator");
 const { MIN_PASSWORD_LENGTH, MAX_CODE_SIZE, MIN_CODE_SIZE } = require("../constants");
 
+const { AppError } = require("../utils/errorHandler");
+
+
 /**
  * Validation middleware factory
  */
