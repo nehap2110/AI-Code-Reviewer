@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import { HiOutlineCube } from "react-icons/hi2";
 import { useAuth } from "../context/AuthContext";
+
+const inputClass =
+  "w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]";
 
 function Login() {
   const [email, setEmail] = useState("");
@@ -25,19 +29,45 @@ function Login() {
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh]">
-      <form onSubmit={handleSubmit} className="bg-[#161b22] p-8 rounded-xl w-full max-w-sm space-y-4">
-        <h2 className="text-2xl font-semibold text-center">Log In</h2>
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required
-          className="w-full bg-[#21262d] border border-gray-700 rounded-lg px-4 py-2" />
-        <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required
-          className="w-full bg-[#21262d] border border-gray-700 rounded-lg px-4 py-2" />
-        <button type="submit" disabled={isSubmitting}
-          className="w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg transition disabled:opacity-50">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] text-[var(--text)] p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-[var(--surface)] border border-[var(--border)] p-8 rounded-2xl w-full max-w-sm space-y-4"
+      >
+        <div className="flex flex-col items-center gap-2 mb-2">
+          <div className="w-10 h-10 rounded-lg bg-[var(--brand)] flex items-center justify-center">
+            <HiOutlineCube className="text-white text-lg" />
+          </div>
+          <h2 className="text-xl font-display font-bold">Log in to CodeLens</h2>
+        </div>
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className={inputClass}
+        />
+        <input
+          type="password"
+          placeholder="Password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          className={inputClass}
+        />
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-white py-2.5 rounded-lg transition-colors disabled:opacity-50"
+        >
           {isSubmitting ? "Logging in..." : "Log In"}
         </button>
-        <p className="text-sm text-gray-400 text-center">
-          Don't have an account? <Link to="/register" className="text-green-400">Register</Link>
+        <p className="text-sm text-[var(--text-muted)] text-center">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-[var(--brand)] font-medium">
+            Register
+          </Link>
         </p>
       </form>
     </div>

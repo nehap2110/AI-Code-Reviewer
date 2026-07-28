@@ -6,7 +6,6 @@ const { validateReview } = require("../middleware/validation");
 
 const router = express.Router();
 
-// POST /api/review - Submit code for review
 router.post("/", reviewLimiter, optionalAuth, validateReview, review);
 
 module.exports = router;

@@ -1,7 +1,11 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import toast from "react-hot-toast";
+import { HiOutlineCube } from "react-icons/hi2";
 import { useAuth } from "../context/AuthContext";
+
+const inputClass =
+  "w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-[var(--brand)]";
 
 function Register() {
   const [name, setName] = useState("");
@@ -19,28 +23,68 @@ function Register() {
       toast.success("Account created!");
       navigate("/");
     } catch (err) {
-      toast.error(err.response?.data?.message || "Registration failed");
+      const apiErrors = err.response?.data?.errors;
+      const message = apiErrors?.[0]?.message || err.response?.data?.message || "Registration failed";
+      toast.error(message);
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div className="flex items-center justify-center min-h-[80vh]">
-      <form onSubmit={handleSubmit} className="bg-[#161b22] p-8 rounded-xl w-full max-w-sm space-y-4">
-        <h2 className="text-2xl font-semibold text-center">Create Account</h2>
-        <input type="text" placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} required
-          className="w-full bg-[#21262d] border border-gray-700 rounded-lg px-4 py-2" />
-        <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required
-          className="w-full bg-[#21262d] border border-gray-700 rounded-lg px-4 py-2" />
-        <input type="password" placeholder="Password (min 6 characters)" value={password} onChange={(e) => setPassword(e.target.value)} required minLength={6}
-          className="w-full bg-[#21262d] border border-gray-700 rounded-lg px-4 py-2" />
-        <button type="submit" disabled={isSubmitting}
-          className="w-full bg-green-600 hover:bg-green-700 py-2 rounded-lg transition disabled:opacity-50">
+    <div className="min-h-screen flex items-center justify-center bg-[var(--bg)] text-[var(--text)] p-4">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-[var(--surface)] border border-[var(--border)] p-8 rounded-2xl w-full max-w-sm space-y-4"
+      >
+        <div className="flex flex-col items-center gap-2 mb-2">
+          <div className="w-10 h-10 rounded-lg bg-[var(--brand)] flex items-center justify-center">
+            <HiOutlineCube className="text-white text-lg" />
+          </div>
+          <h2 className="text-xl font-display font-bold">Create your account</h2>
+        </div>
+        <input
+          type="text"
+          placeholder="Name"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+          className={inputClass}
+        />
+        <input
+          type="email"
+          placeholder="Email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className={inputClass}
+        />
+        <div>
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={8}
+            className={inputClass}
+          />
+          <p className="text-xs text-[var(--text-faint)] mt-1.5">
+            At least 8 characters, with uppercase, lowercase, a number, and a special character.
+          </p>
+        </div>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full bg-[var(--brand)] hover:bg-[var(--brand-hover)] text-white py-2.5 rounded-lg transition-colors disabled:opacity-50"
+        >
           {isSubmitting ? "Creating account..." : "Register"}
         </button>
-        <p className="text-sm text-gray-400 text-center">
-          Already have an account? <Link to="/login" className="text-green-400">Log In</Link>
+        <p className="text-sm text-[var(--text-muted)] text-center">
+          Already have an account?{" "}
+          <Link to="/login" className="text-[var(--brand)] font-medium">
+            Log In
+          </Link>
         </p>
       </form>
     </div>

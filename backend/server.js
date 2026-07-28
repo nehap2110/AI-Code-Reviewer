@@ -3,80 +3,43 @@ const cors = require("cors");
 const helmet = require("helmet");
 require("dotenv").config();
 
-// Import routes
+const connectDB = require("./config/db");
+const { validateEnv } = require("./config/env");
+const { errorMiddleware } = require("./utils/errorHandler");
 const healthRoutes = require("./routes/healthRoutes.js");
 const reviewRoutes = require("./routes/review.routes.js");
 const authRoutes = require("./routes/auth.routes.js");
 const historyRoutes = require("./routes/history.routes.js");
+const savedRoutes = require("./routes/saved.routes.js");
 
-// Import middleware
-const { connectDB } = require("./config/db");
-const { handleError } = require("./utils/errorHandler");
-
-// Connect to database
+validateEnv();
 connectDB();
 
 const app = express();
+app.use(helmet());
 
-// Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      imgSrc: ["'self'", "data:", "https:"],
-    },
-  },
-}));
+// Comma-separated list of allowed origins in production, e.g. "https://app.example.com,https://example.com"
+// Falls back to allowing any origin in development so local Vite ports just work.
+const allowedOrigins = process.env.CORS_ORIGIN
+  ? process.env.CORS_ORIGIN.split(",").map((origin) => origin.trim())
+  : true;
+app.use(cors({ origin: allowedOrigins, credentials: true }));
 
-// CORS configuration
-const allowedOrigins = process.env.CORS_ORIGINS?.split(',') || ['http://localhost:5173', 'http://localhost:3000'];
-app.use(cors({
-  origin: allowedOrigins,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(express.json({ limit: "2mb" }));
 
-// Body parsing middleware
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ limit: '10mb', extended: true }));
-
-// Request logging middleware
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on('finish', () => {
-    const duration = Date.now() - start;
-    console.log(`[${new Date().toISOString()}] ${req.method} ${req.path} - ${res.statusCode} (${duration}ms)`);
-  });
-  next();
-});
-
-// Routes
 app.use("/api/health", healthRoutes);
 app.use("/api/review", reviewRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/history", historyRoutes);
+app.use("/api/saved", savedRoutes);
 
-// 404 handler
+// 404 for anything that didn't match a route above
 app.use((req, res) => {
-  res.status(404).json({
-    success: false,
-    message: `Route ${req.method} ${req.path} not found`,
-  });
+  res.status(404).json({ success: false, message: `Route ${req.originalUrl} not found` });
 });
 
-// Global error handler
-app.use((err, req, res, next) => {
-  handleError(err, res);
-});
+// Must be registered last so it catches errors from all routes above
+app.use(errorMiddleware);
 
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log(`✅ Server running on port ${PORT}`);
-  console.log(`🌍 CORS enabled for: ${allowedOrigins.join(', ')}`);
-  console.log(`🔐 Security: Helmet, Rate Limiting, Input Validation enabled`);
-});
-
-module.exports = app;
+app.listen(PORT, () => console.log(`server running on ${PORT}`));

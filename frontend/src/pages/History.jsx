@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaHistory } from "react-icons/fa";
 import api from "../services/api";
 
 function History() {
@@ -10,7 +10,8 @@ function History() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    api.get("/history")
+    api
+      .get("/history")
       .then((res) => setItems(res.data.history))
       .catch(() => toast.error("Could not load history"))
       .finally(() => setIsLoading(false));
@@ -27,25 +28,41 @@ function History() {
     }
   };
 
-  if (isLoading) return <p className="text-center mt-10 text-gray-400">Loading history...</p>;
+  if (isLoading) {
+    return <p className="text-center mt-10 text-[var(--text-muted)]">Loading history...</p>;
+  }
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-5">Review History</h2>
+    <div className="p-4 lg:p-8 max-w-3xl mx-auto animate-fade-in">
+      <h2 className="text-2xl font-display font-bold mb-1">Review History</h2>
+      <p className="text-[var(--text-muted)] mb-6 text-sm">
+        Every review you've run, logged automatically.
+      </p>
+
       {items.length === 0 ? (
-        <p className="text-gray-500">No saved reviews yet. Run an action while logged in to save one.</p>
+        <div className="bg-[var(--surface)] border border-dashed border-[var(--border)] rounded-xl p-10 text-center text-[var(--text-muted)]">
+          <FaHistory className="mx-auto text-2xl mb-3 text-[var(--text-faint)]" />
+          No history yet. Run an action while logged in and it'll show up here.
+        </div>
       ) : (
         <div className="space-y-3">
           {items.map((item) => (
-            <div key={item._id} onClick={() => navigate(`/?historyId=${item._id}`)}
-              className="bg-[#161b22] hover:bg-[#1c2229] p-4 rounded-lg flex justify-between items-center cursor-pointer transition">
-              <div>
-                <p className="font-medium">{item.preview}</p>
-                <p className="text-sm text-gray-500">
+            <div
+              key={item._id}
+              onClick={() => navigate(`/editor?historyId=${item._id}`)}
+              className="bg-[var(--surface)] hover:border-[var(--brand)] border border-[var(--border)] p-4 rounded-xl flex justify-between items-center cursor-pointer transition-colors"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="font-medium truncate">{item.preview}</p>
+                <p className="text-sm text-[var(--text-muted)] mt-0.5">
                   {item.language} • {item.action} • {new Date(item.createdAt).toLocaleString()}
                 </p>
               </div>
-              <button onClick={(e) => handleDelete(item._id, e)} className="text-red-400 hover:text-red-300 p-2">
+              <button
+                onClick={(e) => handleDelete(item._id, e)}
+                className="text-[var(--accent-bug)] hover:opacity-80 p-2 shrink-0"
+                aria-label="Delete"
+              >
                 <FaTrash />
               </button>
             </div>

@@ -6,4 +6,108 @@ body {
   background: #0d1117;
   color: white;
   font-family: "Poppins", sans-serif;
+}@import "tailwindcss";
+
+/* Enables `dark:` variants toggled by a `.dark` class on <html>, controlled by ThemeContext */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --font-display: "Sora", "Inter", system-ui, sans-serif;
+  --font-body: "Inter", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", monospace;
+
+  /* Light theme */
+  --bg: #F7F7FB;
+  --surface: #FFFFFF;
+  --surface-raised: #FFFFFF;
+  --border: #E5E5EF;
+  --text: #14151F;
+  --text-muted: #6B7086;
+  --text-faint: #9A9EB0;
+
+  /* Brand + semantic accents (shared across themes) */
+  --brand: #5B5FEF;
+  --brand-hover: #4A4EDB;
+  --brand-soft: #EEEDFF;
+
+  --accent-bug: #E5484D;
+  --accent-security: #F5A524;
+  --accent-performance: #3B82F6;
+  --accent-practice: #8B5CF6;
+  --accent-test: #14B8A6;
+  --accent-success: #22C55E;
+}
+
+html.dark {
+  --bg: #0A0B10;
+  --surface: #12141C;
+  --surface-raised: #191B26;
+  --border: #262838;
+  --text: #EDEEF5;
+  --text-muted: #9498AC;
+  --text-faint: #666B82;
+
+  --brand: #7A7EFF;
+  --brand-hover: #9195FF;
+  --brand-soft: #1D1E38;
+}
+
+* {
+  border-color: var(--border);
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-body);
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+}
+
+code, pre, .font-mono {
+  font-family: var(--font-mono);
+}
+
+/* Slim, theme-aware scrollbars used across the app shell */
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-faint);
+}
+
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-in {
+  animation: fade-in 0.25s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    transition-duration: 0.001ms !important;
+  }
 }

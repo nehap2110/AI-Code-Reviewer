@@ -1,6 +1,13 @@
 const { body, validationResult } = require("express-validator");
-const { MIN_PASSWORD_LENGTH, MAX_CODE_SIZE, MIN_CODE_SIZE } = require("../constants");
 
+const {
+  MIN_PASSWORD_LENGTH,
+  MAX_CODE_SIZE,
+  MIN_CODE_SIZE,
+  SUPPORTED_LANGUAGES,
+} = require("../constants");
+
+const { ACTIONS } = require("../services/prompts");
 const { AppError } = require("../utils/errorHandler");
 
 
@@ -59,11 +66,11 @@ const validateReview = [
     .withMessage(`Code must be between ${MIN_CODE_SIZE} and ${MAX_CODE_SIZE} characters`),
   body("language")
     .optional()
-    .isIn(["javascript", "python", "java", "cpp", "c", "ruby", "go", "rust", "typescript"])
+    .isIn(SUPPORTED_LANGUAGES)
     .withMessage("Invalid programming language"),
   body("action")
     .optional()
-    .isIn(["review", "explain", "fixBugs", "optimize", "generateTests"])
+    .isIn(Object.values(ACTIONS))
     .withMessage("Invalid action"),
   validate,
 ];
